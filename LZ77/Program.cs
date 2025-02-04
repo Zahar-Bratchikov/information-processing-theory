@@ -72,12 +72,13 @@ class LZ77
         return decompressed.ToString(); // Возвращаем восстановленную строку
     }
 
-    // Метод для вывода результата в формате таблицы
+    // Метод для вывода результата в формате таблицы и подсчёта длины сжатой строки
     public static void PrintCompressedData(List<(int, int, char)> compressed, string input)
     {
         Console.WriteLine("Шаг | Флаг | Последовательность | d | l | Кодовая последовательность");
         Console.WriteLine("-----------------------------------------------------------");
         int index = 0;
+        int totalBits = 0;
         for (int i = 0; i < compressed.Count; i++)
         {
             var (d, l, nextChar) = compressed[i];
@@ -86,7 +87,10 @@ class LZ77
             string codeSeq = l > 0 ? $"{d}({index}) {l} {Convert.ToString(nextChar, 2)}" : $"0 bin({nextChar})";
             Console.WriteLine($"{i,2} | {flag,3} | {sequence,-20} | {d,2} | {l,2} | {codeSeq}");
             index += l + 1;
+            totalBits += (l > 0 ? (int)Math.Ceiling(Math.Log2(d + 1)) + (int)Math.Ceiling(Math.Log2(l + 1)) + 8 : 9);
         }
+        Console.WriteLine("-----------------------------------------------------------");
+        Console.WriteLine($"Общая длина закодированной строки: {totalBits} бит");
     }
 
     // Основной метод программы (тестирование алгоритма)
@@ -97,7 +101,7 @@ class LZ77
         // Выполняем сжатие
         var compressedData = Compress(input);
 
-        // Выводим результат в виде таблицы
+        // Выводим результат в виде таблицы и считаем длину сжатой строки
         PrintCompressedData(compressedData, input);
 
         // Выполняем разархивирование

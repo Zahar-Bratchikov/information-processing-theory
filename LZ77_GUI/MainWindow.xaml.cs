@@ -22,7 +22,7 @@ namespace FileCompressor
             InitializeComponent();
         }
 
-        // Метод для логирования отладочной информации как в окно LogTextBox, так и в окно Output Visual Studio
+        // Метод для логирования отладочной информации как в окно LogTextBox
         private void Log(string message)
         {
             Debug.WriteLine(message);

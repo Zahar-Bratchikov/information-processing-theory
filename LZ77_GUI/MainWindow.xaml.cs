@@ -3,16 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Windows;
 
 namespace FileCompressor
 {
-    /*
-    Current Date and Time (UTC - YYYY-MM-DD HH:MM:SS formatted): 2025-03-11 09:37:11
-    Current User's Login: Zahar-Bratchikov
-    */
     public partial class MainWindow : Window
     {
         // Параметры алгоритма LZ77: устанавливаем большие значения для повторяющегося текста

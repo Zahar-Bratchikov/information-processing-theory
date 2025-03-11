@@ -9,9 +9,9 @@ namespace FileCompressor
 {
     public partial class MainWindow : Window
     {
-        // Параметры алгоритма LZ77: устанавливаем большие значения для повторяющегося текста
-        const int WindowSize = 4096; // Увеличенный размер окна
-        const int MinMatchLength = 4;   // Незначительно уменьшаем минимальную длину
+        // Параметры алгоритма LZ77:
+        const int WindowSize = 4096;
+        const int MinMatchLength = 4;
         const int MaxMatchLength = 255;
 
         // Кодировка UTF-8 для корректной обработки русских символов
@@ -50,8 +50,7 @@ namespace FileCompressor
             string compressedPath = Path.ChangeExtension(outputName, ".lza");
             try
             {
-                string input = File.ReadAllText(filePath, Utf8Encoding); // Читаем с указанием кодировки
-                Compress(input, compressedPath);
+                string input = File.ReadAllText(filePath, Utf8Encoding);
                 MessageBox.Show($"File compressed to {compressedPath}");
 
                 // Выводим размеры файлов для сравнения
@@ -83,7 +82,7 @@ namespace FileCompressor
             try
             {
                 string decompressed = Decompress(filePath);
-                File.WriteAllText(outputName, decompressed, Utf8Encoding); // Записываем с указанием кодировки
+                File.WriteAllText(outputName, decompressed, Utf8Encoding);
                 MessageBox.Show($"File decompressed to {outputName}");
             }
             catch (Exception ex)
@@ -94,7 +93,7 @@ namespace FileCompressor
 
         private void Compress(string input, string outputFilePath)
         {
-            using (BinaryWriter writer = new BinaryWriter(File.Open(outputFilePath, FileMode.Create), Utf8Encoding)) // Указываем кодировку
+            using (BinaryWriter writer = new BinaryWriter(File.Open(outputFilePath, FileMode.Create), Utf8Encoding))
             {
                 int pos = 0;
                 while (pos < input.Length)
@@ -123,7 +122,7 @@ namespace FileCompressor
                     if (matchLength >= MinMatchLength)
                     {
                         writer.Write((byte)1);
-                        writer.Write((ushort)matchOffset); // Увеличиваем размер смещения до 2 байт
+                        writer.Write((ushort)matchOffset);
                         writer.Write((byte)matchLength);
                         Log($"Ptr: pos={pos}, offset={matchOffset}, length={matchLength}");
                         pos += matchLength;
@@ -131,7 +130,7 @@ namespace FileCompressor
                     else
                     {
                         writer.Write((byte)0);
-                        writer.Write(input[pos]); // Записываем символ
+                        writer.Write(input[pos]);
                         Log($"Lit: pos={pos}, char='{input[pos]}'");
                         pos++;
                     }
@@ -149,13 +148,13 @@ namespace FileCompressor
                     byte flag = reader.ReadByte();
                     if (flag == 0)
                     {
-                        char ch = reader.ReadChar(); // Читаем символ
+                        char ch = reader.ReadChar();
                         output.Append(ch);
                         Log($"Decomp Lit: '{ch}'");
                     }
                     else if (flag == 1)
                     {
-                        ushort offset = reader.ReadUInt16(); // Читаем смещение как ushort
+                        ushort offset = reader.ReadUInt16();
                         int length = reader.ReadByte();
                         int start = output.Length - offset;
                         if (start < 0)

@@ -3,28 +3,35 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Security.Cryptography;
 
-class RSA
+class RSAExample
 {
     static void Main()
     {
-        // Генерируем ключи
-        var keys = GenerateKeys();
-        var publicKey = keys.Item1;
-        var privateKey = keys.Item2;
+        try
+        {
+            // Генерируем ключи
+            var keys = GenerateKeys();
+            var publicKey = keys.Item1;
+            var privateKey = keys.Item2;
 
-        Console.Write("Введите сообщение для шифровки: ");
-        string message = Console.ReadLine();  // Исходное сообщение
-        var ciphertext = Encrypt(message, publicKey);  // Шифруем сообщение
-        var decryptedMessage = Decrypt(ciphertext, privateKey);  // Расшифровываем сообщение
+            Console.Write("Введите сообщение для шифрования: ");
+            string message = Console.ReadLine();  // Исходное сообщение
+            var ciphertext = Encrypt(message, publicKey);  // Шифруем сообщение
+            var decryptedMessage = Decrypt(ciphertext, privateKey);  // Расшифровываем сообщение
 
-        // Выводим результаты
-        Console.WriteLine("Оригинальное сообщение: " + message);
-        Console.WriteLine("Зашифрованное сообщение: " + string.Join(", ", ciphertext));
-        Console.WriteLine("Расшифрованное сообщение: " + decryptedMessage);
+            // Выводим результаты
+            Console.WriteLine("Оригинальное сообщение: " + message);
+            Console.WriteLine("Зашифрованное сообщение: " + string.Join(", ", ciphertext));
+            Console.WriteLine("Расшифрованное сообщение: " + decryptedMessage);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Произошла ошибка: " + ex.Message);
+        }
     }
 
     // Функция для генерации случайного простого числа в заданном диапазоне
-    static BigInteger GeneratePrime(int start = 1000, int end = 5000)
+    static BigInteger GeneratePrime(int start = 100, int end = 500)
     {
         Random random = new Random();
         while (true)
@@ -48,7 +55,7 @@ class RSA
         return true;
     }
 
-    // Вычисление обратного по модулю (с помощью алгоритма Евклида https://habr.com/ru/articles/745820/)
+    // Вычисление обратного по модулю
     static BigInteger ModInverse(BigInteger a, BigInteger m)
     {
         BigInteger m0 = m, t, q;
@@ -71,18 +78,30 @@ class RSA
     // Функция для генерации открытого и закрытого ключей RSA
     static Tuple<(BigInteger, BigInteger), (BigInteger, BigInteger)> GenerateKeys()
     {
-        BigInteger p = GeneratePrime();
-        BigInteger q = GeneratePrime();
-        BigInteger n = p * q;
-        BigInteger phi_n = (p - 1) * (q - 1);
-
-        BigInteger e = 3;
-        while (e < phi_n && BigInteger.GreatestCommonDivisor(e, phi_n) != 1)
+        BigInteger p, q, n, phi_n, e, d;
+        while (true)
         {
-            e += 2;
-        }
+            try
+            {
+                p = GeneratePrime();
+                q = GeneratePrime();
+                n = p * q;
+                phi_n = (p - 1) * (q - 1);
 
-        BigInteger d = ModInverse(e, phi_n);
+                e = 3;
+                while (e < phi_n && BigInteger.GreatestCommonDivisor(e, phi_n) != 1)
+                {
+                    e += 2;
+                }
+
+                d = ModInverse(e, phi_n);
+                break;
+            }
+            catch
+            {
+                continue;
+            }
+        }
 
         return Tuple.Create((e, n), (d, n));
     }

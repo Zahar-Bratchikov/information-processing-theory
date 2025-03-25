@@ -1,0 +1,22 @@
+﻿<Window x:Class="ErrorResistantCodingApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Помехоустойчивое кодирование файлов" Height="350" Width="600">
+    <Grid Margin="10">
+        <StackPanel>
+            <Button Name="btnSelectFile" Margin="0,0,0,10" Click="btnSelectFile_Click">
+                Выбрать файл
+            </Button>
+            <TextBlock Name="txtSelectedFile" Margin="0,0,0,10" Text="Файл не выбран" TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+                <Button Name="btnEncodeFile" Margin="0,0,10,0" Click="btnEncodeFile_Click">
+                    Закодировать файл
+                </Button>
+                <Button Name="btnDecodeFile" Click="btnDecodeFile_Click">
+                    Декодировать файл
+                </Button>
+            </StackPanel>
+            <TextBlock Name="txtStatus" Text="Статус: Ожидание" TextWrapping="Wrap" />
+        </StackPanel>
+    </Grid>
+</Window>

@@ -11,9 +11,9 @@ namespace FileCompressor
     public partial class MainWindow : Window
     {
         // Параметры алгоритма LZ77: устанавливаем большие значения для повторяющегося текста
-        const int WindowSize = 4096; // Размер окна (window) - определяет, насколько далеко назад в тексте мы будем искать совпадения
-        const int MinMatchLength = 4;   // Минимальная длина совпадения (match), которую мы будем учитывать
-        const int MaxMatchLength = 255; // Максимальная длина совпадения, которую мы можем закодировать
+        private const int WindowSize = 4096; // Размер окна (window) - определяет, насколько далеко назад в тексте мы будем искать совпадения
+        private const int MinMatchLength = 4;   // Минимальная длина совпадения (match), которую мы будем учитывать
+        private const int MaxMatchLength = 255; // Максимальная длина совпадения, которую мы можем закодировать
 
         // Кодировка UTF-8 для корректной обработки русских символов
         private static readonly Encoding Utf8Encoding = Encoding.UTF8;

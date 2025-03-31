@@ -66,10 +66,10 @@ class Program
             {
                 flag = 1;
                 matchLen = match.Length;
-                offset = charNumber - matchLen - buffer.IndexOf(match);
+                offset = charNumber - matchLen - buffer.LastIndexOf(match); // Используем LastIndexOf что бы находить расстояние до последного вхождения
                 unar = GetMon(matchLen);
                 buffer += match;
-                matchLenSymbolsInBuffer = buffer.LastIndexOf(match);
+                matchLenSymbolsInBuffer = buffer.LastIndexOf(match); // Используем LastIndexOf что бы находить расстояние до последного вхождения
                 binarySequence = GetBinSeq(matchLenSymbolsInBuffer, offset);
             }
             else

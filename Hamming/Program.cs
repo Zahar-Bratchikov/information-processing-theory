@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 public class HammingEncoderDecoder
 {
@@ -82,6 +85,7 @@ public class HammingEncoderDecoder
         }
 
         int errorPos = 0; // Позиция ошибки
+
         for (int i = 0; i < r; i++) // Проверяем контрольные биты
         {
             int parityPos = (int)Math.Pow(2, i) - 1; // Позиция контрольного бита
@@ -140,7 +144,37 @@ public class HammingEncoderDecoder
             Random random = new Random(); // Создаем генератор случайных чисел
             int errorIndex = random.Next(0, receivedBits.Count); // Генерируем случайную позицию для ошибки
             receivedBits[errorIndex] ^= 1; // Вносим ошибку (инвертируем бит)
-            Console.WriteLine($"Принятая последовательность (с ошибкой в позиции {errorIndex + 1}): " + string.Join("", receivedBits)); // Выводим последовательность с ошибкой
+            Console.WriteLine($"Принятая последовательность (с ошибкой в позиции {errorIndex + 1}): " + string.Join("", receivedBits)); // Выводим последовательно��ть с ошибкой
+
+            // Вычисляем и выводим ошибочные контрольные биты
+            List<int> parityErrors = new List<int>();
+            int totalLength = receivedBits.Count;
+            int r = 0;
+            while (Math.Pow(2, r) < totalLength + 1)
+            {
+                r++;
+            }
+
+            int errorPos = 0;
+            for (int bitIndex = 0; bitIndex < r; bitIndex++)
+            {
+                int parityPos = (int)Math.Pow(2, bitIndex) - 1;
+                int parityValue = 0;
+                for (int j = parityPos; j < totalLength; j += (int)Math.Pow(2, bitIndex + 1))
+                {
+                    for (int k = j; k < Math.Min(j + (int)Math.Pow(2, bitIndex), totalLength); k++)
+                    {
+                        parityValue ^= receivedBits[k];
+                    }
+                }
+                if (parityValue % 2 != 0)
+                {
+                    errorPos += (parityPos + 1);
+                    parityErrors.Add(parityPos + 1);
+                }
+            }
+
+            Console.WriteLine($"Ошибочные контрольные биты: {string.Join(", ", parityErrors)}"); // Выводим ошибочные контрольные биты
 
             List<int> decodedBits = HammingDecode(receivedBits); // Декодируем блок
             decodedBitsAccumulated.AddRange(decodedBits); // Добавляем декодированные биты к общему списку
@@ -148,6 +182,6 @@ public class HammingEncoderDecoder
 
         string decodedText = BitsToText(decodedBitsAccumulated); // Преобразуем биты обратно в текст
         Console.WriteLine("\nПолностью декодированное слово: " + decodedText); // Выводим декодированное слово
-
+        Console.ReadKey();
     }
 }

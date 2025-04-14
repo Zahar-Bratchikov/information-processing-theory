@@ -41,7 +41,7 @@ namespace DigitalSignature
 
         private void btnSavePublicKey_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new SaveFileDialog { Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*", Title = "Сохранить публичный ключ", FileName = "public_key.txt" };
+            SaveFileDialog dlg = new SaveFileDialog { Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*", Title = "Сохранить публичный ключ", FileName = "public_key.txt" };
             if (dlg.ShowDialog() == true)
             {
                 try { rsaHelper.SavePublicKey(dlg.FileName); txtStatus.Text = $"Публичный ключ сохранен в {dlg.FileName}"; }
@@ -51,10 +51,10 @@ namespace DigitalSignature
 
         private void btnSavePrivateKey_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Приватный ключ должен храниться в надежном месте и никогда не передаваться третьим лицам.\n\nВы уверены, что хотите сохранить приватный ключ?", "Предупреждение", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            MessageBoxResult result = MessageBox.Show("Приватный ключ должен храниться в надежном месте и никогда не передаваться третьим лицам.\n\nВы уверены, что хотите сохранить приватный ключ?", "Предупреждение", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (result == MessageBoxResult.Yes)
             {
-                var dlg = new SaveFileDialog { Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*", Title = "Сохранить приватный ключ", FileName = "private_key.txt" };
+                SaveFileDialog dlg = new SaveFileDialog { Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*", Title = "Сохранить приватный ключ", FileName = "private_key.txt" };
                 if (dlg.ShowDialog() == true)
                 {
                     try { rsaHelper.SavePrivateKey(dlg.FileName); txtStatus.Text = $"Приватный ключ сохранен в {dlg.FileName}"; }
@@ -65,7 +65,7 @@ namespace DigitalSignature
 
         private void btnLoadPublicKey_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new OpenFileDialog { Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*", Title = "Загрузить публичный ключ" };
+            OpenFileDialog dlg = new OpenFileDialog { Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*", Title = "Загрузить публичный ключ" };
             if (dlg.ShowDialog() == true)
             {
                 try { rsaHelper.LoadPublicKey(dlg.FileName); UpdateKeyInfo(); txtStatus.Text = $"Публичный ключ загружен из {dlg.FileName}"; }
@@ -75,7 +75,7 @@ namespace DigitalSignature
 
         private void btnLoadPrivateKey_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new OpenFileDialog { Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*", Title = "Загрузить приватный ключ" };
+            OpenFileDialog dlg = new OpenFileDialog { Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*", Title = "Загрузить приватный ключ" };
             if (dlg.ShowDialog() == true)
             {
                 try { rsaHelper.LoadPrivateKey(dlg.FileName); UpdateKeyInfo(); txtStatus.Text = $"Приватный ключ загружен из {dlg.FileName}"; }
@@ -85,7 +85,7 @@ namespace DigitalSignature
 
         private void btnSelectFileToSign_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new OpenFileDialog { Filter = "Все файлы (*.*)|*.*", Title = "Выбрать файл для подписи" };
+            OpenFileDialog dlg = new OpenFileDialog { Filter = "Все файлы (*.*)|*.*", Title = "Выбрать файл для подписи" };
             if (dlg.ShowDialog() == true)
             {
                 txtSignFilePath.Text = dlg.FileName;
@@ -116,7 +116,7 @@ namespace DigitalSignature
 
         private void btnSaveSignature_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new SaveFileDialog { Filter = "Файлы подписи (*.sig)|*.sig|Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*", Title = "Сохранить цифровую подпись", FileName = "signature.sig" };
+            SaveFileDialog dlg = new SaveFileDialog { Filter = "Файлы подписи (*.sig)|*.sig|Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*", Title = "Сохранить цифровую подпись", FileName = "signature.sig" };
             if (dlg.ShowDialog() == true)
             {
                 try { rsaHelper.SaveSignature(currentSignature, dlg.FileName); txtStatus.Text = $"Подпись сохранена в {dlg.FileName}"; }
@@ -126,7 +126,7 @@ namespace DigitalSignature
 
         private void btnSelectFileToVerify_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new OpenFileDialog { Filter = "Все файлы (*.*)|*.*", Title = "Выбрать файл для проверки" };
+            OpenFileDialog dlg = new OpenFileDialog { Filter = "Все файлы (*.*)|*.*", Title = "Выбрать файл для проверки" };
             if (dlg.ShowDialog() == true)
             {
                 txtVerifyFilePath.Text = dlg.FileName;
@@ -136,7 +136,7 @@ namespace DigitalSignature
 
         private void btnSelectSignatureFile_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new OpenFileDialog { Filter = "Файлы подписи (*.sig)|*.sig|Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*", Title = "Выбрать файл подписи" };
+            OpenFileDialog dlg = new OpenFileDialog { Filter = "Файлы подписи (*.sig)|*.sig|Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*", Title = "Выбрать файл подписи" };
             if (dlg.ShowDialog() == true)
             {
                 txtSignatureFilePath.Text = dlg.FileName;

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
+using System.Diagnostics;
 
 namespace DigitalSignature
 {
@@ -19,10 +20,20 @@ namespace DigitalSignature
             var keys = GenerateKeys();
             publicKey = keys.Item1;
             privateKey = keys.Item2;
+            Debug.WriteLine($"[RSAHelper] Generated keys - Public: (e: {publicKey.e}, n: {publicKey.n}), Private: (d: {privateKey.d}, n: {privateKey.n})");
         }
 
-        public void SetPublicKey(BigInteger e, BigInteger n) => publicKey = (e, n);
-        public void SetPrivateKey(BigInteger d, BigInteger n) => privateKey = (d, n);
+        public void SetPublicKey(BigInteger e, BigInteger n)
+        {
+            publicKey = (e, n);
+            Debug.WriteLine($"[SetPublicKey] Set public key to: (e: {e}, n: {n})");
+        }
+
+        public void SetPrivateKey(BigInteger d, BigInteger n)
+        {
+            privateKey = (d, n);
+            Debug.WriteLine($"[SetPrivateKey] Set private key to: (d: {d}, n: {n})");
+        }
 
         private BigInteger GeneratePrime(int start = 10000, int end = 100000, Random rnd = null)
         {
@@ -30,7 +41,11 @@ namespace DigitalSignature
             while (true)
             {
                 int candidate = rnd.Next(start, end);
-                if (IsPrime(candidate)) return candidate;
+                if (IsPrime(candidate))
+                {
+                    Debug.WriteLine($"[GeneratePrime] Candidate prime found: {candidate}");
+                    return candidate;
+                }
             }
         }
 
@@ -41,7 +56,9 @@ namespace DigitalSignature
             if (number % 2 == 0) return false;
             int bound = (int)Math.Sqrt(number);
             for (int i = 3; i <= bound; i += 2)
+            {
                 if (number % i == 0) return false;
+            }
             return true;
         }
 
@@ -61,6 +78,7 @@ namespace DigitalSignature
                 x1 = t;
             }
             if (x1 < 0) x1 += m0;
+            Debug.WriteLine($"[ModInverse] Computed modular inverse: {x1}");
             return x1;
         }
 
@@ -77,10 +95,12 @@ namespace DigitalSignature
                 } while (p == q);
                 n = p * q;
                 phi_n = (p - 1) * (q - 1);
-                e = 65537;
+                e = 65537; // Standard exponent
+                Debug.WriteLine($"[GenerateKeys] p: {p}, q: {q}, n: {n}, phi(n): {phi_n}, chosen e: {e}");
             } while (BigInteger.GreatestCommonDivisor(e, phi_n) != 1 || e >= phi_n);
 
             d = ModInverse(e, phi_n);
+            Debug.WriteLine($"[GenerateKeys] Final keys - Public: (e: {e}, n: {n}), Private: (d: {d}, n: {n})");
             return Tuple.Create((e, n), (d, n));
         }
 
@@ -88,36 +108,55 @@ namespace DigitalSignature
         {
             using (var sha256 = SHA256.Create())
             using (var stream = File.OpenRead(filePath))
-                return sha256.ComputeHash(stream);
+            {
+                byte[] hash = sha256.ComputeHash(stream);
+                Debug.WriteLine($"[ComputeFileHash] File: {filePath}, Hash: {BitConverter.ToString(hash)}");
+                return hash;
+            }
         }
 
-        // Критически важно: одинаковое формирование BigInteger из хеша!
-        private static BigInteger HashToBigInteger(byte[] hash)
+        // Converts the hash (big-endian) into a BigInteger (little-endian) with an extra zero to ensure positivity.
+        public static BigInteger HashToBigInteger(byte[] hash)
         {
+            Debug.WriteLine($"[HashToBigInteger] Original hash bytes: {BitConverter.ToString(hash)}");
             byte[] unsigned = new byte[hash.Length + 1];
             Array.Copy(hash, 0, unsigned, 1, hash.Length);
-            Array.Reverse(unsigned); // Теперь big-endian => little-endian
-            return new BigInteger(unsigned);
+            Debug.WriteLine($"[HashToBigInteger] After prepending zero: {BitConverter.ToString(unsigned)}");
+            Array.Reverse(unsigned);
+            Debug.WriteLine($"[HashToBigInteger] Reversed bytes: {BitConverter.ToString(unsigned)}");
+            BigInteger result = new BigInteger(unsigned);
+            Debug.WriteLine($"[HashToBigInteger] Resulting BigInteger: {result}");
+            return result;
         }
 
         public BigInteger SignFile(string filePath)
         {
             byte[] hash = ComputeFileHash(filePath);
             BigInteger hashValue = HashToBigInteger(hash);
-            return BigInteger.ModPow(hashValue, privateKey.d, privateKey.n);
+            // Note: RSA operations work modulo n, so the actual signed value is (hashValue mod n)^d mod n.
+            Debug.WriteLine($"[SignFile] Computed hashValue: {hashValue}");
+            BigInteger signature = BigInteger.ModPow(hashValue, privateKey.d, privateKey.n);
+            Debug.WriteLine($"[SignFile] Signature: {signature}");
+            return signature;
         }
 
         public bool VerifySignature(string filePath, BigInteger signature)
         {
             byte[] hash = ComputeFileHash(filePath);
             BigInteger hashValue = HashToBigInteger(hash);
+            // Reduce the hash modulo n because RSA works in the finite field Z/n.
+            BigInteger m = hashValue % publicKey.n;
             BigInteger decryptedHash = BigInteger.ModPow(signature, publicKey.e, publicKey.n);
-            return decryptedHash == hashValue;
+            Debug.WriteLine($"[VerifySignature] Computed hashValue: {hashValue}");
+            Debug.WriteLine($"[VerifySignature] (hashValue mod n): {m}");
+            Debug.WriteLine($"[VerifySignature] Decrypted hash from signature: {decryptedHash}");
+            return decryptedHash == m;
         }
 
         public void SavePublicKey(string filePath)
         {
             File.WriteAllText(filePath, $"{publicKey.e}\n{publicKey.n}");
+            Debug.WriteLine($"[SavePublicKey] Public key saved to {filePath}");
         }
 
         public void LoadPublicKey(string filePath)
@@ -127,11 +166,13 @@ namespace DigitalSignature
             var e = BigInteger.Parse(lines[0]);
             var n = BigInteger.Parse(lines[1]);
             SetPublicKey(e, n);
+            Debug.WriteLine($"[LoadPublicKey] Public key loaded from {filePath}");
         }
 
         public void SavePrivateKey(string filePath)
         {
             File.WriteAllText(filePath, $"{privateKey.d}\n{privateKey.n}");
+            Debug.WriteLine($"[SavePrivateKey] Private key saved to {filePath}");
         }
 
         public void LoadPrivateKey(string filePath)
@@ -141,18 +182,22 @@ namespace DigitalSignature
             var d = BigInteger.Parse(lines[0]);
             var n = BigInteger.Parse(lines[1]);
             SetPrivateKey(d, n);
+            Debug.WriteLine($"[LoadPrivateKey] Private key loaded from {filePath}");
         }
 
         public void SaveSignature(BigInteger signature, string filePath)
         {
             File.WriteAllText(filePath, signature.ToString());
+            Debug.WriteLine($"[SaveSignature] Signature saved to {filePath}");
         }
 
         public BigInteger LoadSignature(string filePath)
         {
             string signatureStr = File.ReadAllText(filePath);
             if (string.IsNullOrWhiteSpace(signatureStr)) throw new Exception("Файл подписи пустой или поврежден");
-            return BigInteger.Parse(signatureStr);
+            BigInteger signature = BigInteger.Parse(signatureStr);
+            Debug.WriteLine($"[LoadSignature] Signature loaded from {filePath}: {signature}");
+            return signature;
         }
     }
 }

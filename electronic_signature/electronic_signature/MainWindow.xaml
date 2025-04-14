@@ -1,0 +1,108 @@
+﻿<Window x:Class="DigitalSignature.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Приложение цифровой подписи файлов" Height="800" Width="800"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Background="#3498db" Padding="10">
+            <TextBlock Text="Электронная подпись файлов RSA" FontSize="24" Foreground="White" HorizontalAlignment="Center"/>
+        </Border>
+        <TabControl Grid.Row="1" Margin="10">
+            <TabItem Header="Генерация ключей">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Button Grid.Row="0" Content="Сгенерировать новую пару ключей" Name="btnGenerateKeys" Click="btnGenerateKeys_Click" Margin="0,10" Padding="10" Background="#27ae60" Foreground="White" FontSize="14"/>
+                    <GroupBox Grid.Row="1" Header="Сохранение ключей" Margin="0,10">
+                        <StackPanel Margin="5">
+                            <Button Content="Сохранить публичный ключ" Name="btnSavePublicKey" Click="btnSavePublicKey_Click" Margin="0,5" Padding="10" Background="#2980b9" Foreground="White"/>
+                            <Button Content="Сохранить приватный ключ" Name="btnSavePrivateKey" Click="btnSavePrivateKey_Click" Margin="0,5" Padding="10" Background="#c0392b" Foreground="White"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Grid.Row="2" Header="Загрузка ключей" Margin="0,10">
+                        <StackPanel Margin="5">
+                            <Button Content="Загрузить публичный ключ" Name="btnLoadPublicKey" Click="btnLoadPublicKey_Click" Margin="0,5" Padding="10" Background="#2980b9" Foreground="White"/>
+                            <Button Content="Загрузить приватный ключ" Name="btnLoadPrivateKey" Click="btnLoadPrivateKey_Click" Margin="0,5" Padding="10" Background="#c0392b" Foreground="White"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Grid.Row="3" Header="Информация о текущих ключах" Margin="0,10">
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Публичный ключ (e, n):" FontWeight="Bold"/>
+                            <TextBox Name="txtPublicKey" IsReadOnly="True" Height="50" TextWrapping="Wrap" Margin="0,5,0,10"/>
+                            <TextBlock Text="Приватный ключ (d, n):" FontWeight="Bold"/>
+                            <TextBox Name="txtPrivateKey" IsReadOnly="True" Height="50" TextWrapping="Wrap" Margin="0,5"/>
+                        </StackPanel>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Подписание файла">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Name="txtSignFilePath" Padding="5" Margin="0,0,10,0"/>
+                        <Button Grid.Column="1" Content="Выбрать файл" Name="btnSelectFileToSign" Click="btnSelectFileToSign_Click" Padding="10"/>
+                    </Grid>
+                    <Button Grid.Row="1" Content="Подписать файл" Name="btnSignFile" Click="btnSignFile_Click" Margin="0,10" Padding="10" Background="#27ae60" Foreground="White" FontSize="14"/>
+                    <GroupBox Grid.Row="2" Header="Результат подписи" Margin="0,10">
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Цифровая подпись:" FontWeight="Bold"/>
+                            <TextBox Name="txtSignature" IsReadOnly="True" Height="60" TextWrapping="Wrap" Margin="0,5"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <Button Grid.Row="3" Content="Сохранить подпись в файл" Name="btnSaveSignature" Click="btnSaveSignature_Click" Margin="0,10" Padding="10" Background="#2980b9" Foreground="White" VerticalAlignment="Top"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Проверка подписи">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Name="txtVerifyFilePath" Padding="5" Margin="0,0,10,0"/>
+                        <Button Grid.Column="1" Content="Выбрать файл" Name="btnSelectFileToVerify" Click="btnSelectFileToVerify_Click" Padding="10"/>
+                    </Grid>
+                    <Grid Grid.Row="1" Margin="0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Name="txtSignatureFilePath" Padding="5" Margin="0,0,10,0"/>
+                        <Button Grid.Column="1" Content="Выбрать файл подписи" Name="btnSelectSignatureFile" Click="btnSelectSignatureFile_Click" Padding="10"/>
+                    </Grid>
+                    <Button Grid.Row="2" Content="Проверить подпись" Name="btnVerifySignature" Click="btnVerifySignature_Click" Margin="0,10" Padding="10" Background="#e74c3c" Foreground="White" FontSize="14"/>
+                    <GroupBox Grid.Row="3" Header="Результат проверки" Margin="0,10">
+                        <TextBlock Name="txtVerificationResult" Margin="5" Padding="10" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <Border Grid.Row="2" Background="#ecf0f1" Padding="10">
+            <TextBlock Name="txtStatus" Text="Приложение готово к работе" HorizontalAlignment="Center"/>
+        </Border>
+    </Grid>
+</Window>

@@ -8,16 +8,31 @@ using System.Windows;
 
 namespace ErrorResistantCodingApp
 {
+    /// <summary>
+    /// Главное окно приложения, реализующее логику помехоустойчивого кодирования
+    /// </summary>
     public partial class MainWindow : Window
     {
+        /// <summary>
+        /// Путь к выбранному пользователем файлу
+        /// </summary>
         private string selectedFilePath = string.Empty;
 
+        /// <summary>
+        /// Конструктор класса MainWindow
+        /// Инициализирует компоненты пользовательского интерфейса
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        // Обработчик для выбора файла
+        /// <summary>
+        /// Обработчик события нажатия на кнопку выбора файла
+        /// Открывает диалог выбора файла и сохраняет путь к выбранному файлу
+        /// </summary>
+        /// <param name="sender">Объект, вызвавший событие</param>
+        /// <param name="e">Аргументы события</param>
         private void btnSelectFile_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -29,9 +44,15 @@ namespace ErrorResistantCodingApp
             }
         }
 
-        // Обработчик для кодирования файла
+        /// <summary>
+        /// Обработчик события нажатия на кнопку кодирования файла
+        /// Выполняет кодирование выбранного файла, используя повторный код (3x)
+        /// </summary>
+        /// <param name="sender">Объект, вызвавший событие</param>
+        /// <param name="e">Аргументы события</param>
         private void btnEncodeFile_Click(object sender, RoutedEventArgs e)
         {
+            // Проверка наличия выбранного файла
             if (string.IsNullOrEmpty(selectedFilePath) || !File.Exists(selectedFilePath))
             {
                 MessageBox.Show("Пожалуйста, выберите существующий файл.");
@@ -69,9 +90,15 @@ namespace ErrorResistantCodingApp
             }
         }
 
-        // Обработчик для декодирования файла
+        /// <summary>
+        /// Обработчик события нажатия на кнопку декодирования файла
+        /// Выполняет декодирование закодированного файла с восстановлением исходных данных
+        /// </summary>
+        /// <param name="sender">Объект, вызвавший событие</param>
+        /// <param name="e">Аргументы события</param>
         private void btnDecodeFile_Click(object sender, RoutedEventArgs e)
         {
+            // Проверка наличия выбранного файла
             if (string.IsNullOrEmpty(selectedFilePath) || !File.Exists(selectedFilePath))
             {
                 MessageBox.Show("Пожалуйста, выберите существующий файл для декодирования.");
@@ -109,13 +136,19 @@ namespace ErrorResistantCodingApp
             }
         }
 
-        // Метод для преобразования массива байтов в последовательность битов
+        /// <summary>
+        /// Преобразует массив байтов в список битов (0 и 1)
+        /// </summary>
+        /// <param name="bytes">Массив байтов для преобразования</param>
+        /// <returns>Список, содержащий биты (0 и 1)</returns>
         private List<int> BytesToBits(byte[] bytes)
         {
             List<int> bits = new List<int>();
             foreach (byte b in bytes)
             {
+                // Преобразование байта в 8-битную строку с ведущими нулями
                 string binary = Convert.ToString(b, 2).PadLeft(8, '0');
+                // Преобразование каждого символа в бит (0 или 1)
                 foreach (char bit in binary)
                 {
                     bits.Add(bit == '1' ? 1 : 0);
@@ -124,15 +157,22 @@ namespace ErrorResistantCodingApp
             return bits;
         }
 
-        // Метод для преобразования последовательности битов в массив байтов
+        /// <summary>
+        /// Преобразует список битов обратно в массив байтов
+        /// </summary>
+        /// <param name="bits">Список битов для преобразования</param>
+        /// <returns>Массив байтов, полученный из списка битов</returns>
         private byte[] BitsToBytes(List<int> bits)
         {
+            // Убираем лишние биты, если их количество не кратно 8
             int remainder = bits.Count % 8;
             if (remainder != 0)
             {
                 bits = bits.Take(bits.Count - remainder).ToList();
             }
+            
             List<byte> bytes = new List<byte>();
+            // Группируем биты по 8 и преобразуем каждую группу в байт
             for (int i = 0; i < bits.Count; i += 8)
             {
                 string byteStr = string.Join("", bits.Skip(i).Take(8));
@@ -141,13 +181,18 @@ namespace ErrorResistantCodingApp
             return bytes.ToArray();
         }
 
-        // Метод для кодирования повторным кодом (Repetition Code) с коэффициентом повторения 3
-        // Каждый бит исходного сообщения повторяется трижды для повышения устойчивости к ошибкам.
+        /// <summary>
+        /// Кодирует данные с использованием повторного кода (3x)
+        /// Каждый бит повторяется 3 раза для повышения устойчивости к ошибкам
+        /// </summary>
+        /// <param name="dataBits">Исходный список битов</param>
+        /// <returns>Закодированный список битов, где каждый бит повторен трижды</returns>
         private List<int> EncodeRepetition(List<int> dataBits)
         {
             List<int> encoded = new List<int>();
             foreach (int bit in dataBits)
             {
+                // Повторяем каждый бит трижды
                 encoded.Add(bit);
                 encoded.Add(bit);
                 encoded.Add(bit);
@@ -155,23 +200,32 @@ namespace ErrorResistantCodingApp
             return encoded;
         }
 
-        // Метод для декодирования повторного кода (Repetition Code) с коэффициентом повторения 3
-        // Декодирование осуществляется с использованием правила большинства: для каждой группы из 3 бит возвращается значение,
-        // которое встречается чаще (если количество 1 больше, чем 0, то 1, иначе 0).
+        /// <summary>
+        /// Декодирует данные, закодированные повторным кодом (3x)
+        /// Использует правило большинства: если в группе из 3 бит больше единиц, то результат 1, иначе 0
+        /// </summary>
+        /// <param name="receivedBits">Закодированный список битов</param>
+        /// <returns>Декодированный список битов</returns>
         private List<int> DecodeRepetition(List<int> receivedBits)
         {
             List<int> decoded = new List<int>();
+            // Группируем биты по 3 и применяем правило большинства
             for (int i = 0; i < receivedBits.Count; i += 3)
             {
                 int countOnes = 0;
                 int countZeros = 0;
+                // Подсчитываем количество единиц и нулей в группе из 3 бит
                 for (int j = 0; j < 3; j++)
                 {
-                    if (receivedBits[i + j] == 1)
-                        countOnes++;
-                    else
-                        countZeros++;
+                    if (i + j < receivedBits.Count) // Защита от выхода за границы списка
+                    {
+                        if (receivedBits[i + j] == 1)
+                            countOnes++;
+                        else
+                            countZeros++;
+                    }
                 }
+                // Применяем правило большинства
                 decoded.Add(countOnes > countZeros ? 1 : 0);
             }
             return decoded;

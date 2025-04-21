@@ -15,11 +15,11 @@ class Program
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         
-        Console.WriteLine("Программа для создания цепной дроби из числа");
-        Console.WriteLine("Введите число:");
-        
-        if (double.TryParse(Console.ReadLine(), out double number))
-        {
+        //Console.WriteLine("Программа для создания цепной дроби из числа");
+        //Console.WriteLine("Введите число:");
+        double number = Math.Sqrt(2);
+        //if (double.TryParse(Console.ReadLine(), out double number))
+        //{
             // Создаем цепную дробь из введенного числа
             var cf = ContinuedFraction.FromDouble(number, 10);
             
@@ -31,11 +31,11 @@ class Program
             
             Console.WriteLine("\nВизуализация цепной дроби:");
             Console.WriteLine(ContinuedFractionVisualizer.Visualize(cf));
-        }
-        else
-        {
-            Console.WriteLine("Ошибка: Введите корректное число");
-        }
+        //}
+        //else
+        //{
+        //    Console.WriteLine("Ошибка: Введите корректное число");
+        //}
         
         Console.WriteLine("\nНажмите любую клавишу для выхода...");
         Console.ReadKey();

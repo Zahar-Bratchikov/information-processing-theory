@@ -13,22 +13,38 @@ namespace DigitalSignature
         public MainWindow()
         {
             InitializeComponent();
-            rsaHelper = new RSAHelper();
-            UpdateKeyInfo();
+            rsaHelper = new RSAHelper(false);
+            txtPublicKey.Text = string.Empty;
+            txtPrivateKey.Text = string.Empty;
             btnSaveSignature.IsEnabled = false;
         }
 
         private void UpdateKeyInfo()
         {
-            txtPublicKey.Text = $"e = {rsaHelper.PublicKey.e}\nn = {rsaHelper.PublicKey.n}";
-            txtPrivateKey.Text = $"d = {rsaHelper.PrivateKey.d}\nn = {rsaHelper.PrivateKey.n}";
+            if (rsaHelper.PublicKey.e == BigInteger.Zero && rsaHelper.PublicKey.n == BigInteger.Zero)
+            {
+                txtPublicKey.Text = string.Empty;
+            }
+            else
+            {
+                txtPublicKey.Text = $"e = {rsaHelper.PublicKey.e}\nn = {rsaHelper.PublicKey.n}";
+            }
+
+            if (rsaHelper.PrivateKey.d == BigInteger.Zero && rsaHelper.PrivateKey.n == BigInteger.Zero)
+            {
+                txtPrivateKey.Text = string.Empty;
+            }
+            else
+            {
+                txtPrivateKey.Text = $"d = {rsaHelper.PrivateKey.d}\nn = {rsaHelper.PrivateKey.n}";
+            }
         }
 
         private void btnGenerateKeys_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                rsaHelper = new RSAHelper();
+                rsaHelper = new RSAHelper(true);
                 UpdateKeyInfo();
                 txtStatus.Text = "Новая пара ключей успешно сгенерирована";
             }
@@ -41,6 +57,12 @@ namespace DigitalSignature
 
         private void btnSavePublicKey_Click(object sender, RoutedEventArgs e)
         {
+            if (rsaHelper.PublicKey.e == BigInteger.Zero || rsaHelper.PublicKey.n == BigInteger.Zero)
+            {
+                MessageBox.Show("Отсутствует публичный ключ. Пожалуйста, сгенерируйте ключи", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             SaveFileDialog dlg = new SaveFileDialog { Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*", Title = "Сохранить публичный ключ", FileName = "public_key.txt" };
             if (dlg.ShowDialog() == true)
             {
@@ -51,6 +73,12 @@ namespace DigitalSignature
 
         private void btnSavePrivateKey_Click(object sender, RoutedEventArgs e)
         {
+            if (rsaHelper.PrivateKey.d == BigInteger.Zero || rsaHelper.PrivateKey.n == BigInteger.Zero)
+            {
+                MessageBox.Show("Отсутствует приватный ключ. Пожалуйста, сгенерируйте ключи", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             MessageBoxResult result = MessageBox.Show("Приватный ключ должен храниться в надежном месте и никогда не передаваться третьим лицам.\n\nВы уверены, что хотите сохранить приватный ключ?", "Предупреждение", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (result == MessageBoxResult.Yes)
             {
@@ -100,6 +128,13 @@ namespace DigitalSignature
                 MessageBox.Show("Пожалуйста, выберите файл для подписи", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
+            if (rsaHelper.PrivateKey.d == BigInteger.Zero || rsaHelper.PrivateKey.n == BigInteger.Zero)
+            {
+                MessageBox.Show("Отсутствует приватный ключ. Пожалуйста, сгенерируйте или загрузите ключи", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
                 currentSignature = rsaHelper.SignFile(txtSignFilePath.Text);
@@ -156,6 +191,13 @@ namespace DigitalSignature
                 MessageBox.Show("Пожалуйста, выберите файл подписи", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
+            if (rsaHelper.PublicKey.e == BigInteger.Zero || rsaHelper.PublicKey.n == BigInteger.Zero)
+            {
+                MessageBox.Show("Отсутствует публичный ключ. Пожалуйста, сгенерируйте или загрузите ключи", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
                 BigInteger signature = rsaHelper.LoadSignature(txtSignatureFilePath.Text);

@@ -15,12 +15,22 @@ namespace DigitalSignature
         public (BigInteger e, BigInteger n) PublicKey => publicKey;
         public (BigInteger d, BigInteger n) PrivateKey => privateKey;
 
-        public RSAHelper()
+        public RSAHelper(bool generateKeys = true)
         {
-            var keys = GenerateKeys();
-            publicKey = keys.Item1;
-            privateKey = keys.Item2;
-            Debug.WriteLine($"[RSAHelper] Generated keys - Public: (e: {publicKey.e}, n: {publicKey.n}), Private: (d: {privateKey.d}, n: {privateKey.n})");
+            if (generateKeys)
+            {
+                var keys = GenerateKeys();
+                publicKey = keys.Item1;
+                privateKey = keys.Item2;
+                Debug.WriteLine($"[RSAHelper] Generated keys - Public: (e: {publicKey.e}, n: {publicKey.n}), Private: (d: {privateKey.d}, n: {privateKey.n})");
+            }
+            else
+            {
+                // Инициализируем пустые ключи
+                publicKey = (BigInteger.Zero, BigInteger.Zero);
+                privateKey = (BigInteger.Zero, BigInteger.Zero);
+                Debug.WriteLine("[RSAHelper] Created with empty keys");
+            }
         }
 
         public void SetPublicKey(BigInteger e, BigInteger n)
@@ -131,6 +141,9 @@ namespace DigitalSignature
 
         public BigInteger SignFile(string filePath)
         {
+            if (privateKey.d == BigInteger.Zero || privateKey.n == BigInteger.Zero)
+                throw new InvalidOperationException("Приватный ключ отсутствует. Сначала сгенерируйте или загрузите ключи.");
+
             byte[] hash = ComputeFileHash(filePath);
             BigInteger hashValue = HashToBigInteger(hash);
             // Note: RSA operations work modulo n, so the actual signed value is (hashValue mod n)^d mod n.
@@ -142,6 +155,9 @@ namespace DigitalSignature
 
         public bool VerifySignature(string filePath, BigInteger signature)
         {
+            if (publicKey.e == BigInteger.Zero || publicKey.n == BigInteger.Zero)
+                throw new InvalidOperationException("Публичный ключ отсутствует. Сначала сгенерируйте или загрузите ключи.");
+
             byte[] hash = ComputeFileHash(filePath);
             BigInteger hashValue = HashToBigInteger(hash);
             // Reduce the hash modulo n because RSA works in the finite field Z/n.

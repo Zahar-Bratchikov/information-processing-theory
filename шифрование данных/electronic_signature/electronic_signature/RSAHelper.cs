@@ -125,7 +125,7 @@ namespace DigitalSignature
             }
         }
 
-        // Converts the hash (big-endian) into a BigInteger (little-endian) with an extra zero to ensure positivity.
+        // Converts the hash into a BigInteger with an extra zero to ensure positivity.
         public static BigInteger HashToBigInteger(byte[] hash)
         {
             Debug.WriteLine($"[HashToBigInteger] Original hash bytes: {BitConverter.ToString(hash)}");

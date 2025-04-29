@@ -20,7 +20,7 @@ namespace SortingAlgorithms
         }
 
         /// <summary>
-        /// Реализация сортировки Форда-Джонсона (сортировка посредством вставок и слияния)
+        /// Реализация сортировка посредством вставок и слияния
         /// </summary>
         private static int[] FordJohnsonSort(int[] array, bool verbose = false)
         {
@@ -29,7 +29,7 @@ namespace SortingAlgorithms
             
             if (verbose)
             {
-                Console.WriteLine("Сортировка посредством вставок и слияния (Форд-Джонсон)");
+                Console.WriteLine("Сортировка посредством вставок и слияния");
                 Console.WriteLine("Исходный массив:");
                 PrintArray(workingArray);
                 Console.WriteLine();
